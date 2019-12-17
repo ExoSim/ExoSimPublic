@@ -35,7 +35,7 @@ class Channel(object):
     self.zodi         = copy.deepcopy(zodi)
     self.emission     = copy.deepcopy(emission)
     self.transmission = copy.deepcopy(transmission)
-    #self.is_spec = True
+    self.is_spec = True
     if options:
       self.opt = options
       if options.type in ['spectrometer', 'photometer']:
