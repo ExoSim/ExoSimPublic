@@ -24,12 +24,13 @@ class Entry(object):
       
     if hasattr(self, 'units'):
       try:
-        self.val = aq.Quantity(map(float, self.val.split(',')), self.units).simplified
+        self.val = aq.Quantity(list(map(float, self.val.split(','))),
+                               self.units).simplified
         if self.units == 'deg': self.val = [x*aq.rad for x in self.val] # workaround for qt unit coversion
         if len(self.val) == 1: self.val = self.val[0]
       except (ValueError, LookupError):
-        print 'unable to convert units in entry [tag, units, value]: ', \
-                                 xml.tag, self.units, self.val
+        print('unable to convert units in entry [tag, units, value]: ', \
+                                 xml.tag, self.units, self.val)
 
 class Options(object):
   opt = None

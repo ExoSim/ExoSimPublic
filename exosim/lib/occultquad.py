@@ -39,7 +39,7 @@ def ellke(k):
 def ellpic_bulirsch(n,k):
     kc=sqrt(1.-k**2); p=n+1.
     if(min(p) < 0.):
-        print 'Negative p'
+        print('Negative p')
     m0=1.; c=1.; p=sqrt(p); d=1./p; e=kc
     while 1:
         f = c; c = d/p+c; g = e/p; d = 2.*(f*g+d)
@@ -250,7 +250,7 @@ def occultquad(z,u1,u2,p0):
         ## (please report it)
         notused5 = where(z[notusedyet] > (1.-p))
         if notused5[0] != 0:
-            print "ERROR: the following values of z didn't fit into a case:"
+            print("ERROR: the following values of z didn't fit into a case:")
             return [-1,-1]
 
         if p0 > 0:

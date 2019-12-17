@@ -5,7 +5,8 @@ from ..lib import occultquad
 from ..lib.exolib import exosim_error
 from ..lib.exolib import exosim_msg
 import quantities as aq
-import pytransit, multiprocessing
+import multiprocessing
+from pytransit import QuadraticModel
 
 class Planet(object):
   """
@@ -13,10 +14,10 @@ class Planet(object):
     
     Attributes
     ----------
-    wl				array
-				wavelength [micron]
-    sed 			array
-				contains planet-star contrast ratio
+    wl                          array
+                                wavelength [micron]
+    sed                         array
+                                contains planet-star contrast ratio
   """
   t14 = 0.0
   phi = None
@@ -31,8 +32,8 @@ class Planet(object):
     
     Parameters
     __________
-    contrast_path		string
-				path name of file containg the planet-star contrast spectrum
+    contrast_path               string
+                                path name of file containg the planet-star contrast spectrum
     """
     self._sanitize_planet(planet)
     self.planet = planet
@@ -66,21 +67,21 @@ class Planet(object):
     
     Parameters
     __________
-    inc:			scalar
-				Planet oprbital inclination [rad]
-    a:				scalar
-				Semimajor axis [meters]
-    period:			scalar
-				Orbital period [seconds]
-    planet_radius	:	scalar
-				Planet radius [meters]
-    star_radius	:		scalar
-				Star radius [meters]
+    inc:                        scalar
+                                Planet oprbital inclination [rad]
+    a:                          scalar
+                                Semimajor axis [meters]
+    period:                     scalar
+                                Orbital period [seconds]
+    planet_radius       :       scalar
+                                Planet radius [meters]
+    star_radius         :               scalar
+                                Star radius [meters]
     
     Returns
     __________
     transit duration : float
-	Returns the transit duration [seconds]
+        Returns the transit duration [seconds]
     
     Notes
     _____
@@ -92,8 +93,8 @@ class Planet(object):
     dtmp = 1+planet_radius/star_radius
     if impact_parameter < dtmp:
       self.t14 = period/np.pi * \
-	    star_radius/a * \
-	    np.sqrt(dtmp**2 - impact_parameter**2)
+            star_radius/a * \
+            np.sqrt(dtmp**2 - impact_parameter**2)
     else:
       #print "WARNING: planet not transiting"
       self.t14 = np.nan
@@ -118,22 +119,22 @@ class Planet(object):
     
     Parameters
     __________
-    phi : 	array
+    phi :       array
       orbital phase 
-    inc :	float
+    inc :       float
       orbital inclination [radiants]
-    ecc : 	float
+    ecc :       float
       orbital eccentricity [radiants]
-    omega :	float
+    omega :     float
       argument of periastron [radiants]
-    a	:	float
+    a   :       float
       semimajor axis [meters]
-    star_radius : 	float
+    star_radius :       float
       star radius [meters]
     
     Returns
     _______
-    z	: 	array
+    z   :       array
       orbital separations
     
     Notes
@@ -206,8 +207,8 @@ class Planet(object):
     i0, i1     : scalars
                  index of first and last contact (assuming max contrast ratio)
     
-		 
-		 
+                 
+                 
     """
     ##TODO REMOVE useNewCode and entire block when ready
     useNewCode = True
@@ -216,39 +217,68 @@ class Planet(object):
     
     u =  self.ldCoeffs.getCoeffs(self.planet.star.T, wavelength, forceZero=setLdCoeffsToZero)
     self.u = u ## required for outputing into fits file at the end
-    m = pytransit.MandelAgol(eclipse=isEclipse )
-    z = m._calculate_z(timegrid.rescale(aq.day).magnitude, t0.rescale(aq.day), 
-		self.planet.P.rescale(aq.day), 
-		self.planet.a/self.planet.star.R.rescale(self.planet.a.units), 
-		self.planet.i.rescale(aq.radians), 
-		self.planet.e,
-		0.0)
+    m = QuadraticModel(is_secondary=isEclipse, klims=(0,1))
+    m.set_data(timegrid.rescale(aq.day).magnitude)
+    
+    # m = pytransit.MandelAgol(eclipse=isEclipse )
+    # z = m._calculate_z(timegrid.rescale(aq.day).magnitude,
+    #             t0.rescale(aq.day), 
+    #             self.planet.P.rescale(aq.day), 
+    #             self.planet.a/self.planet.star.R.rescale(self.planet.a.units), 
+    #             self.planet.i.rescale(aq.radians), 
+    #             self.planet.e,
+    #             0.0)
     lc = np.zeros( (planet_sed.size, timegrid.size) )
     k2 = (self.planet.R.rescale(aq.m)/ self.planet.a.rescale(aq.m))**2
     albedo = self.planet.albedo
-    
     def apply_mandel_primary(i):
-	lc[i, ...] = m(z, np.sqrt(planet_sed[i]), u[i, ...]) + phase_function * (k2 * albedo) * apply_phase_curve
-    
+        # lc[i, ...] = m(z, np.sqrt(planet_sed[i]), u[i, ...]) + phase_function * (k2 * albedo) * apply_phase_curve
+        lc[i, ...] = m.evaluate_ps(np.sqrt(planet_sed[i]),
+                                   u[i, ...],
+                                   t0.rescale(aq.day),
+                                   self.planet.P.rescale(aq.day),
+                                   self.planet.a/self.planet.star.R.rescale(self.planet.a.units),
+                                   self.planet.i.rescale(aq.radians),
+                                   self.planet.e,
+                                   0.0) + phase_function * (k2 * albedo) * apply_phase_curve
+
+
     def apply_mandel_secondary(i):
-	f_e = (planet_sed[i] + (m(z, np.sqrt(planet_sed[i]), u[i, ...])-1.0))/planet_sed[i]
-	dtmp = phase_function * (k2 *albedo + planet_sed[i])  if apply_phase_curve else planet_sed[i]
-	lc[i, ...]  = 1.0 + f_e*dtmp
-	    
+        # f_e = (planet_sed[i] + (m(z, np.sqrt(planet_sed[i]), u[i, ...])-1.0))/planet_sed[i]
+        # dtmp = phase_function * (k2 *albedo + planet_sed[i])  if apply_phase_curve else planet_sed[i]
+        # lc[i, ...]  = 1.0 + f_e*dtmp
+
+        f_e = (planet_sed[i] + (m.evaluate_ps(np.sqrt(planet_sed[i]),
+                                              u[i, ...],
+                                              t0.rescale(aq.day),
+                                              self.planet.P.rescale(aq.day),
+                                              self.planet.a/self.planet.star.R.rescale(self.planet.a.units),
+                                              self.planet.i.rescale(aq.radians),
+                                              self.planet.e,
+                                              0.0)-1.0))/planet_sed[i]
+
+        if apply_phase_curve:
+            dtmp = phase_function * (k2 * albedo + planet_sed[i])
+        else:
+            dtmp = planet_sed[i]
+
+        lc[i, ...] = 1.0 + f_e * dtmp
+
+
     if trinsit_is_primary:
-	#phaseFactor1 = 1
-	#phaseFactor2 = -1
-	useMandelFunction = apply_mandel_primary
-	phi = np.pi # phase in transit is pi for primari, zero for secondary
+        #phaseFactor1 = 1
+        #phaseFactor2 = -1
+        useMandelFunction = apply_mandel_primary
+        phi = np.pi # phase in transit is pi for primari, zero for secondary
     
     else:
-	#phaseFactor1 = 0
-	#phaseFactor2 = 1
-	useMandelFunction = apply_mandel_secondary
-	phi = 0.0
-    
+        #phaseFactor1 = 0
+        #phaseFactor2 = 1
+        useMandelFunction = apply_mandel_secondary
+        phi = 0.0
+            
     alpha = 2*np.pi*( timegrid.rescale(aq.day) - t0.rescale(aq.day) ) / \
-				    self.planet.P.rescale(aq.day) + phi
+                                    self.planet.P.rescale(aq.day) + phi
     ### Old - coded by Andreas
     # phase_function = (phaseFactor1 + phaseFactor2 *  np.cos(alpha))
     
@@ -257,17 +287,33 @@ class Planet(object):
     
     ### Enzo's simple projection - this is the fraction of the dayside observed
     phase_function = (1+np.cos(alpha))/2.0
+
+    # Calculate z (PyTransit no longer does this)
+    # Assumes planet moves at a constant velocity (no eccentricity)
+    # Calculate y component (impact parameter)
+    z_y = self.planet.a.rescale(self.planet.star.R.units) / self.planet.star.R \
+          * np.sin(np.pi/2 - self.planet.i.rescale(aq.radians))
+    # Calculate distance of chord traveled
+    d   = 2 * (((self.planet.R.rescale(self.planet.star.R.units) + \
+                 self.planet.star.R) \
+               / self.planet.star.R)**2 - z_y**2)**0.5
+    # Velocity of planet across chord
+    v   = d / self.t14.rescale(aq.day)
+    # X component of z as a function of time
+    z_x = v * (timegrid.rescale(aq.day) - t0.rescale(aq.day))
+    # Total z vector as a function of time
+    z = (z_x**2 + z_y**2)**0.5
     
-    
-    map(useMandelFunction, np.arange(lc.shape[0]) )
+    #map(useMandelFunction, np.arange(lc.shape[0]) )
+
+    for i in np.arange(lc.shape[0]):
+      useMandelFunction(i)
+      
     z_12 = 1.0+planet_sed.max()
-    idx = np.argsort( np.abs(z-z_12) )
-      
-      
+    idx = np.where(z < z_12)
 
-    return lc, z, idx[0], idx[1]
+    return lc, z, idx[0], idx[-1]
     
-
 
 class LimbDarkeningCoeffs:
   ld_coeffs = None

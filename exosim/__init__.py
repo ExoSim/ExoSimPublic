@@ -8,9 +8,9 @@
 
 """
 #__all__ = ["classes", "modules", "lib"]
-from classes import *
-from modules import *
-from lib import *
-from runexosim import *
-from tools import *
+from exosim.classes import *
+from exosim.modules import *
+from exosim.lib import *
+#from runexosim import *
+from exosim.tools import *
 __root__ = "."

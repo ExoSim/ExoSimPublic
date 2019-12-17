@@ -43,11 +43,11 @@ def run(opt, channel, planet):
     
     #### Detector Simulation Values
     hdu.header['POINTRMS'] = (opt.aocs.pointing_rms.val.item(), 'Model Pointing RMS')
-    tempVal = filter(lambda x:x.name==key, opt.channel)[0].detector_pixel.Idc.val.magnitude.item()
+    tempVal = list(filter(lambda x:x.name==key, opt.channel))[0].detector_pixel.Idc.val.magnitude.item()
     hdu.header['DET_I_DC'] = (tempVal, 'Detector dark current')
-    tempVal = filter(lambda x:x.name==key, opt.channel)[0].detector_pixel.sigma_ro.val.magnitude.item()
+    tempVal = list(filter(lambda x:x.name==key, opt.channel))[0].detector_pixel.sigma_ro.val.magnitude.item()
     hdu.header['DETROERR'] = (tempVal, 'Detector readout noise in e-rms')
-    tempVal = filter(lambda x:x.name==key, opt.channel)[0].plate_scale.val.rescale('degree').magnitude.item()
+    tempVal = list(filter(lambda x:x.name==key, opt.channel))[0].plate_scale.val.rescale('degree').magnitude.item()
     hdu.header['CDELT1'] = (tempVal, 'Degrees/pixel')
     hdu.header['CDELT2'] = (tempVal, 'Degrees/pixel')
     hdulist = fits.HDUList(hdu)
@@ -55,7 +55,7 @@ def run(opt, channel, planet):
     
     
     
-    for i in xrange(channel[key].tl_shape[-1]):
+    for i in range(channel[key].tl_shape[-1]):
       hdu = fits.ImageHDU(channel[key].noise[..., i].astype(np.float32), name = 'NOISE')
       hdu.header['EXPNUM'] = (i//multiaccum, 'Exposure Number')
       hdu.header['ENDRNUM'] = (i%multiaccum, 'NDR Number')
@@ -64,7 +64,7 @@ def run(opt, channel, planet):
     
     		     
     # Create column data
-    col1 = fits.Column(name='Wavelength {:s}'.format(channel[key].wl_solution.units), format='E', 
+    col1 = fits.Column(name='Wavelength {:f}'.format(channel[key].wl_solution.units), format='E', 
 		       array=channel[key].wl_solution[channel[key].offs::channel[key].osf])
     col2 = fits.Column(name='Input Contrast Ratio', format='E', 
 		       array=channel[key].planet.sed[channel[key].offs::channel[key].osf])
@@ -82,7 +82,7 @@ def run(opt, channel, planet):
     hdulist.append(hdu)
     
     ############
-    col1 = fits.Column(name='Time {:s}'.format(channel[key].ndr_time.units), format='E', 
+    col1 = fits.Column(name='Time {:f}'.format(channel[key].ndr_time.units), format='E', 
 		       array=channel[key].ndr_time)
     col2 = fits.Column(name='z', format='E', 
 		       array=channel[key].z)
