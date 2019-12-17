@@ -1,6 +1,6 @@
-from options import *
-from planet import *
-from sed import *
-from zodi import *
-from channel import *
+from exosim.classes.options import *
+from exosim.classes.planet import *
+from exosim.classes.sed import *
+from exosim.classes.zodi import *
+from exosim.classes.channel import *
 

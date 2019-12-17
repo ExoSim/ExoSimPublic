@@ -29,6 +29,9 @@ class Sed(object):
 	wl: array
 	    wavelength
     """
+    print(wl)
+    print(self.wl)
+    print(self.sed)
     self.wl, self.sed = exolib.rebin(wl, self.wl, self.sed)
     
     

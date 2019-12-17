@@ -38,7 +38,7 @@ def run(opt, channel, planet):
     modelFile = 'M2V_SED_Timeseries.fits'
     fileName = workDir + modelFile
     wlArr, tArr, lc = loadExternalLightCurve(fileName)
-    print 'qqqqqqqqqqqqqqqqqqqqqqqq===================',lc.shape
+    print('qqqqqqqqqqqqqqqqqqqqqqqq===================',lc.shape)
     
     from scipy import interpolate
     f = interpolate.interp2d(wlArr, tArr, lc, kind='cubic')
@@ -63,7 +63,7 @@ def run(opt, channel, planet):
     
     # Estimate the base block of CLK cycles
     base = [opt.timeline.nGND().take(0), opt.timeline.nNDR0().take(0)]
-    for x in xrange(multiaccum-1): base.append(nNDR)
+    for x in range(int(multiaccum)-1): base.append(nNDR)
     base.append(opt.timeline.nRST().take(0))
     
     # Recalculate exposure time and estimates how many exposures are needed
@@ -76,10 +76,10 @@ def run(opt, channel, planet):
     
     # Physical time of each NDR
     ndr_time = np.dstack([time_sequence[1+i::len(base)] \
-      for i in xrange(multiaccum)]).flatten()*time_sequence.units
+      for i in range(int(multiaccum))]).flatten()*time_sequence.units
     # Number of frames contributing to each NDR
     ndr_sequence = np.dstack([frame_sequence[1+i::len(base)] \
-      for i in xrange(multiaccum)]).flatten()
+      for i in range(int(multiaccum))]).flatten()
     # CLK counter of each NDR
     ndr_cumulative_sequence = (ndr_time/frame_time).astype(np.int).magnitude
 
@@ -97,7 +97,7 @@ def run(opt, channel, planet):
     
     isPrimaryTransit = True if opt.astroscene.transit_is_primary()=='True' else False
     apply_phase_curve = True if opt.astroscene.apply_phase_curve()=='True' else False
-    
+
     channel[key].lc, z, i0, i1 = planet.get_light_curve(cr, cr_wl, 
               channel[key].ndr_time, 
               time_at_transit, 
@@ -114,16 +114,16 @@ def run(opt, channel, planet):
       tInterp = channel[key].ndr_time - channel[key].ndr_time[0] 
       wlInterp = cr_wl
       lcCorr = f(wlInterp[::-1], tInterp)[::-1, :]
-      print 
-      print '\nCR_WL MIN/MAX', np.min(cr_wl), np.max(cr_wl)
-      print '=================================', f(0.93345514, 0)
-      print '=================================', f(3, 0)
+      print() 
+      print('\nCR_WL MIN/MAX', np.min(cr_wl), np.max(cr_wl))
+      print('=================================', f(0.93345514, 0))
+      print('=================================', f(3, 0))
       
-      print '##############################'
-      print '##############################'
-      print '##  APPLYING STELLAR VAR NOISE'
-      print '##############################'
-      print '##############################'
+      print('##############################')
+      print('##############################')
+      print('##  APPLYING STELLAR VAR NOISE')
+      print('##############################')
+      print('##############################')
 
       import matplotlib.pyplot as plt
       plt.plot(lcCorr)
@@ -136,9 +136,9 @@ def run(opt, channel, planet):
     ## ADD SpotSim LC correction here as one line.
     ## Temporary TEST block
     if False:
-      print 'QQQQQQQQQQQQQQQ MODDED LD CoEFFS'
+      print('QQQQQQQQQQQQQQQ MODDED LD CoEFFS')
       channel[key].ldc = np.zeros_like(channel[key].ldc)
-      print 'QQQQQQQQQQQQQQQ MODDED LD CoEFFS'
+      print('QQQQQQQQQQQQQQQ MODDED LD CoEFFS')
       
       spotsList2 = [
          {'r':3, 'x': 27.65, 'y':23.63},
@@ -243,7 +243,7 @@ def run_(opt, channel, planet):
   return lc_time, z
 
 ##### FOR TESTING - TO BE DELETED
-import pyfits
+import astropy.io.fits as pyfits
 def loadExternalLightCurve(inFile):
   hdulist = pyfits.open(inFile)
   wlRef = hdulist[0].header['CRVAL1']
@@ -255,12 +255,12 @@ def loadExternalLightCurve(inFile):
   lc = np.zeros((nWl, nTimes))
   wlArr = np.arange(nWl)*wlDelt+wlRef
   tArr = np.arange(nTimes)*timeDelt+timeRef -100
-  print wlArr
-  print '***** MIN-MAX WL:', np.min(wlArr),np.max(wlArr)
-  print '***** MIN-MAX TIME:', np.min(tArr),np.max(tArr)
+  print(wlArr)
+  print('***** MIN-MAX WL:', np.min(wlArr),np.max(wlArr))
+  print('***** MIN-MAX TIME:', np.min(tArr),np.max(tArr))
   for i in range(nTimes):
     if int(i/float(nTimes)*1000)%100==0:
-      print "%.1f%%"%(i/float(nTimes)*100)
+      print("%.1f%%"%(i/float(nTimes)*100))
     lc[:,i] = hdulist[1].data.field('Time %d'%i)
 
   lc = lc.T/np.mean(lc, 1)

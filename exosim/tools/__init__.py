@@ -1,1 +1,1 @@
-from snr import *
+from exosim.tools.snr import *
