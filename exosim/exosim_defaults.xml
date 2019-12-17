@@ -18,6 +18,7 @@
     <apply_phase_curve val = "False" comment="If True, phase curve effects are added to the light curve"/>
     <planet val = 'gj1214b' />
     <planetCR val="__path__/data/planetary/transmission/0400K_gj1214.dat" comment="planet/star contrast ratio"/>
+    <use_planck_spectrum val = "False" comment="If True, use a Planck function for the stllar sed, otherwise use Phoenix"/>
     <OpenExoplanetCatalogue val = "~/git/open_exoplanet_catalogue/systems/" comment="Path to openexoplanet catalogue. Null string downloads from URL."/>
     <StarSEDPath val_alt="/mnt/blast/data0/stellar_spectra/sed" val="__path__/data/star" />
     <StarLimbDarkening val="__path__/data/star/ldc_coeffs.dat" comment="Path to Model Limb Darkening coefficients table"/>
@@ -48,7 +49,7 @@
   <TelescopeEffectiveDiameter val="0.5" units="m" />
 </common_optics>
 
-<channel name="SWIR" comment="SWIR">
+<channel name="SWIR" comment="SWIR" type="spectrometer">
   <is_spec val = "True" comment="if True, channel is a spectrometer, otherwise a photometer (no spectral dispersion)"/>
   <optical_surface type="dichroic" transmission="__path__/data/instrument/d0_re_v0.csv"  val="70" units="K" comment="D0"/>
   <optical_surface type="grating" transmission="__path__/data/instrument/grating_swir_v0.csv"   val="70" units="K" comment=""/>  
@@ -57,6 +58,7 @@
   <array_geometry val="64, 512" units = "" comment="pixel count"/>
   <wfno val="18.5" units="" comment="The working f/#" />
   <osf val="3" units="" comment="Oversample each detector pixel by this amount. Need to be changed" />
+  <pix_offs val="1" units = "" comment="Detector pixel center offset" />
   <qe val="__path__/data/instrument/qe.csv" comment="" />
   <qe_rms_matrix_file val = "None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
   <plate_scale val="7.5e-5" units="deg" comment="In degrees per pixel" />
@@ -68,7 +70,7 @@
   </detector_pixel>
 </channel>
 
-<channel name="MWIR" comment="MWIR">
+<channel name="MWIR" comment="MWIR" type="spectrometer">
   <is_spec val = "True" comment="if True, channel is a spectrometer, otherwise a photometer (no spectral dispersion)"/>
   <optical_surface type="dichroic" transmission="__path__/data/instrument/d0_te_v0.csv"        val="70" units="K" comment="D0"/>
   <optical_surface type="grating"  transmission="__path__/data/instrument/grating_mwir_v0.csv" val="70" units="K" comment=""/>  
@@ -78,6 +80,7 @@
   
   <wfno val="9.2" units="" transmission="The working f/#" />
   <osf val="3" units="" comment="Oversample each detector pixel by this amount. Need to be changed" />
+  <pix_offs val="1" units = "" comment="Detector pixel center offset" />
   <qe val="__path__/data/instrument/qe.csv" comment="" />
   <qe_rms_matrix_file val = "None" comment="[Default 'None'] Path to CSV file containing matrix of QE of pixels."/>
   <plate_scale val="11.67e-5" units="deg" comment="In degrees per pixel" />
