@@ -9,7 +9,6 @@ import numpy as np
 import quantities as pq
 from ..lib import exolib
 from exosim.lib.exolib import exosim_msg
-from exosim.lib.spotsim import SpotSim2
 
 def run(opt, channel, planet):
   exosim_msg('Create signal-only timelines ... ')
