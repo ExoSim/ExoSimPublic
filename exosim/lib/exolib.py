@@ -4,8 +4,10 @@ from scipy import interpolate
 from scipy.integrate import cumtrapz
 import scipy.special
 import quantities as pq
-import sys, os, pyfits
-
+#import sys, os, pyfits
+import sys
+import os
+import astropy.io.fits as pyfits
 
 def exosim_error(error_msg):
     sys.stderr.write("Error code: {:s}\n".format(error_msg))
@@ -63,7 +65,7 @@ def rebin(x, xp, fp):
   '''
   
   if (x.units != xp.units):
-    print x.units, xp.units
+    print(x.units, xp.units)
     exosim_error('Units mismatch')
   
   idx = np.where(np.logical_and(xp > 0.9*x.min(), xp < 1.1*x.max()))[0]
@@ -221,7 +223,7 @@ def Psf_Interp(zfile, delta_pix, WavRange):
     for i, hdu in enumerate(hdulist):
         inwl[i]   = np.float64(hdu.header['WAV'])        
         f = interpolate.RectBivariateSpline(xin, yin, hdu.data)
-	redata[..., i] = f(xout,yout)
+        redata[..., i] = f(xout,yout)
 
         redata[..., i] /= redata[..., i].sum()
     return interpolate.interp1d(inwl, redata, axis=2, bounds_error=False, fill_value=0.0, kind='quadratic')(WavRange)
@@ -423,7 +425,7 @@ def pointing_jitter(jitter_file, total_observing_time, frame_time, rms=None):
   
   number_of_samples_ = np.int(osf*np.ceil(total_observing_time/frame_time).simplified)-10
   
-  number_of_samples = 2**np.ceil(np.log2(number_of_samples_))/2+1
+  number_of_samples = np.int(2**np.ceil(np.log2(number_of_samples_))/2+1)
   
   freq_nyq = osf*0.5/frame_time.rescale(pq.s).magnitude
   freq = np.linspace(0.0, freq_nyq, number_of_samples)
@@ -442,9 +444,9 @@ def pointing_jitter(jitter_file, total_observing_time, frame_time, rms=None):
   
   # Line interpolation: preserves RMS
   npsd_yaw   = 1.0e-30+interpolate.interp1d(psd_freq, psd_yaw, fill_value=0.0, 
-					    kind='linear', bounds_error=None)(freq)
+					    kind='linear', bounds_error=False)(freq)
   npsd_pitch   = 1.0e-30+interpolate.interp1d(psd_freq, psd_pitch, fill_value=0.0, 
-					      kind='linear', bounds_error=None)(freq)
+					      kind='linear', bounds_error=False)(freq)
  
   #import matplotlib.pyplot as plt
   #plt.plot(psd_freq, psd_yaw, 'or')
@@ -473,8 +475,8 @@ def pointing_jitter(jitter_file, total_observing_time, frame_time, rms=None):
     pitch_jit *= np.sqrt(norm)
   
   if False:
-    print np.sqrt((npsd_yaw**2).sum()), np.sqrt((npsd_pitch**2).sum())
-    print yaw_jit.rms(), pitch_jit.rms(), np.sqrt(yaw_jit.var()+pitch_jit.var())
+    print(np.sqrt((npsd_yaw**2).sum()), np.sqrt((npsd_pitch**2).sum()))
+    print(yaw_jit.rms(), pitch_jit.rms(), np.sqrt(yaw_jit.var()+pitch_jit.var()))
     sps = osf/frame_time
     fp, psdp = signal.periodogram(pitch_jit, sps, window='hamming')
     fy, psdy = signal.periodogram(yaw_jit, sps, window='hamming')
@@ -646,7 +648,7 @@ def jitter__remove(jitter_file, obs_time, ndr_time, rms,mode=2):
     
     
     else:
-        print "error: maximum of 2 psds can be used"
+        print("error: maximum of 2 psds can be used")
     
 
     xt = xt[0:N0]   # only need N0 samples to cover the observation

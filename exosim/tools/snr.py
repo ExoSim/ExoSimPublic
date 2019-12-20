@@ -24,7 +24,7 @@ ld           : Wavelength solution
 pix_size     : pixel size in microns              
 """
 
-import pyfits
+import astropy.io.fits as pyfits
 import numpy as np
 import quantities  as aq
 import pytransit
