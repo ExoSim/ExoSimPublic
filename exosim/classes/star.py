@@ -102,7 +102,7 @@ class Star(object):
       wl = pq.Quantity(hdu[1].data.field('Wavelength'),
 		     hdu[1].header['TUNIT1']).astype(np.float64)
       sed = pq.Quantity(hdu[1].data.field('Flux'), pq.W/pq.m**2/pq.micron).astype(np.float64)
-      if hdu[1].header['TUNIT2'] != 'W / (m2 um)': print 'Exception'
+      if hdu[1].header['TUNIT2'] != 'W / (m2 um)': print('Exception')
     
       #remove duplicates
       idx = np.nonzero(np.diff(wl))

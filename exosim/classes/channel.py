@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.ndimage
-import copy, os, pyfits
+import copy, os
+import astropy.io.fits as pyfits
 from ..lib import exolib
 
 class Channel(object):
@@ -13,35 +14,34 @@ class Channel(object):
   psf             = None
   fp              = None   # focal plane
   fp_delta        = None   # Focal plane sampling interval (equal for 
-			# spatial -y- and spectral -x- directions)
+                        # spatial -y- and spectral -x- directions)
   osf             = 1      # Focal plane oversampling factor
   wl_solution     = None   # This is the wavelength solution 
-			#   for the focal plane at its current 
-			#   sampling. 
+                        #   for the focal plane at its current 
+                        #   sampling. 
   opt             = None   # Options relevant for this
                         # channel
   offs            = 1      # pixel offset for fp sampling
-			# fp[offs::opt.osf()]
+                        # fp[offs::opt.osf()]
   tl_shape        = None #
   tl_units        = None
   tl              = None    # timeline cube
   noise           = None    # Noise cube on timeline
   
   def __init__(self, star, planet, zodi, emission, 
-	       transmission, options=None):
+               transmission, options=None):
     self.star         = copy.deepcopy(star)
     self.planet       = copy.deepcopy(planet)
     self.zodi         = copy.deepcopy(zodi)
     self.emission     = copy.deepcopy(emission)
     self.transmission = copy.deepcopy(transmission)
     self.is_spec = True
-    if options : 
+    if options:
       self.opt = options
       if options.type in ['spectrometer', 'photometer']:
         self.instrument_type = options.type
       else:
-        raise ValueError('XML "channel" can be either "spectrometer" or "photometer". Current value is "%s"'%options.type)
-    
+        raise ValueError('XML "channel" can be either "spectrometer" or "photometer". Current value is "%s"'%options.type)    
     
   def save(self, pathname=None, sim_num=0, file_ext='fits', planet=None):
     if not pathname: pathname = '.'
@@ -60,17 +60,17 @@ class Channel(object):
       prihdr['wavsol_2'] = (self.opt.ld().base[2], 'reference pixel')
       prihdr['BUNITS']   = "{:>18s}".format(str(self.fp.units))
       if planet:
-	prihdr['NAME'] = ("{:>18s}".format(planet.planet.name), '')
-	prihdr['T14'] = (float(planet.t14), str(planet.t14.units))
-	prihdr['PERIOD'] = (float(planet.planet.P), 
-			    str(planet.planet.P.units))
-	
+        prihdr['NAME'] = ("{:>18s}".format(planet.planet.name), '')
+        prihdr['T14'] = (float(planet.t14), str(planet.t14.units))
+        prihdr['PERIOD'] = (float(planet.planet.P), 
+                            str(planet.planet.P.units))
+        
       fp_hdu = pyfits.PrimaryHDU(self.fp, header=prihdr)
       tb_hdu = pyfits.new_table(pyfits.ColDefs([
-	pyfits.Column(name='wl', format='E', array=self.wl_solution),
-	pyfits.Column(name='cr', format='E', array=self.planet.sed),
-	pyfits.Column(name='star', format='E', array=self.star.sed)]))
-	
+        pyfits.Column(name='wl', format='E', array=self.wl_solution),
+        pyfits.Column(name='cr', format='E', array=self.planet.sed),
+        pyfits.Column(name='star', format='E', array=self.star.sed)]))
+        
       
       hdulist = pyfits.HDUList([fp_hdu, tb_hdu])
       hdulist.writeto(filename + '.' + file_ext, clobber=True)
@@ -84,9 +84,9 @@ class Channel(object):
     Parameters
     ----------
     frame_time: scalar
-		the frame time in second. This is the detector sample rate.
+                the frame time in second. This is the detector sample rate.
     ndr_time : vector
-	       Physical time of each NDR (s)
+               Physical time of each NDR (s)
     ndr_sequence: vector
                   Number of frames contributing to each ndr_cumulative_sequence
     ndr_cumulative_sequence: CLK counter of each NDR
@@ -117,9 +117,9 @@ class Channel(object):
       mag = magnification_factor
       
     self.fp = scipy.ndimage.zoom(self.fp, mag, 
-				 order=order)*self.fp.units
+                                 order=order)*self.fp.units
     self.wl_solution = scipy.ndimage.zoom(self.wl_solution, mag,
-					  order=order)*self.wl_solution.units
+                                          order=order)*self.wl_solution.units
     self.osf *= mag
     self.fp_delta /= mag
     

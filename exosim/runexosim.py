@@ -9,7 +9,7 @@ def run_exosim(opt=None):
   star, planet = exosim.modules.astroscene.run(opt)
   
   exosim_msg(' Stellar SED: {:s}\n'.format(os.path.basename(star.ph_filename)))
-  exosim_msg(' Star luminosity {:s}\n'.format(star.luminosity))
+  exosim_msg(' Star luminosity {:f}\n'.format(star.luminosity))
   
   #Instanciate Zodi
   zodi = exosim.classes.zodiacal_light(opt.common.common_wl, level=1.0)
@@ -28,7 +28,7 @@ def run_exosim(opt=None):
 
 if __name__ == "__main__":
   
-  xmlFileNameDefault = 'exosim_ariel_mcr_Euro.xml' 
+  xmlFileNameDefault = 'exosim_defaults.xml' 
   
   xmlFileName = sys.argv[1]  if len(sys.argv)>1 else xmlFileNameDefault
   

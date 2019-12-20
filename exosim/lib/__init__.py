@@ -1,3 +1,3 @@
 #__all__ = ["exolib", "occultquad"]
-from exolib import *
-from occultquad import *
+from exosim.lib.exolib import *
+from exosim.lib.occultquad import *
