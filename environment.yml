@@ -5,6 +5,8 @@ channels:
   - http://ssb.stsci.edu/astroconda
   - defaults
 dependencies:
+  - _anaconda_depends=2019.03=py37_0
+  - _libgcc_mutex=0.1=main
   - alabaster=0.7.12=py37_0
   - anaconda=custom=py37_0
   - anaconda-client=1.7.2=py37_0
@@ -30,9 +32,9 @@ dependencies:
   - boto=2.49.0=py37_0
   - bottleneck=1.2.1=py37h035aef0_1
   - bzip2=1.0.6=h14c3975_5
-  - ca-certificates=2019.6.16=hecc5488_0
+  - ca-certificates=2019.11.28=hecc5488_0
   - cairo=1.14.12=h8948797_3
-  - certifi=2019.6.16=py37_0
+  - certifi=2019.11.28=py37_0
   - cffi=1.12.2=py37h2e261b9_1
   - chardet=3.0.4=py37_1
   - click=7.0=py37_0
@@ -41,18 +43,19 @@ dependencies:
   - colorama=0.4.1=py37_0
   - contextlib2=0.5.5=py37_0
   - cryptography=2.6.1=py37h1ba5d50_0
-  - curl=7.64.0=hbc83047_2
+  - curl=7.67.0=hbc83047_0
   - cycler=0.10.0=py37_0
   - cython=0.29.6=py37he6710b0_0
   - cytoolz=0.9.0.1=py37h14c3975_1
-  - dask=1.1.4=py37_1
-  - dask-core=1.1.4=py37_1
+  - dask=2.9.2=py_0
+  - dask-core=2.9.2=py_0
   - dbus=1.13.6=h746ee38_0
   - decorator=4.4.0=py37_1
   - defusedxml=0.5.0=py37_1
-  - distributed=1.26.0=py37_1
+  - distributed=2.9.3=py_0
   - docutils=0.14=py37_0
   - ds9=7.5=1
+  - emcee=3.0.2=pyh5ca1d4c_0
   - entrypoints=0.3=py37_0
   - et_xmlfile=1.0.1=py37_0
   - expat=2.2.6=he6710b0_0
@@ -62,8 +65,10 @@ dependencies:
   - fontconfig=2.13.0=h9420a91_0
   - freetype=2.9.1=h8a8886c_1
   - fribidi=1.0.5=h7b6447c_0
+  - fsspec=0.6.2=py_0
   - get_terminal_size=1.0.0=haa9412d_0
   - gevent=1.4.0=py37h7b6447c_0
+  - git=2.23.0=pl526hacde149_0
   - glib=2.56.2=hd408876_0
   - glob2=0.6=py37_1
   - gmp=6.1.2=h6c8ec71_1
@@ -107,7 +112,7 @@ dependencies:
   - krb5=1.16.1=h173b8e3_7
   - lazy-object-proxy=1.3.1=py37h14c3975_2
   - libarchive=3.3.3=h5d8350f_5
-  - libcurl=7.64.0=h20c2e04_2
+  - libcurl=7.67.0=h20c2e04_0
   - libedit=3.1.20181209=hc058e9b_0
   - libffi=3.2.1=hd88cf55_4
   - libgcc-ng=8.2.0=hdf63c60_1
@@ -115,7 +120,7 @@ dependencies:
   - liblief=0.9.0=h7725739_2
   - libpng=1.6.36=hbc83047_0
   - libsodium=1.0.16=h1bed415_0
-  - libssh2=1.8.0=h1ba5d50_4
+  - libssh2=1.8.2=h1ba5d50_0
   - libstdcxx-ng=8.2.0=hdf63c60_1
   - libtiff=4.0.10=h2733197_2
   - libtool=2.4.6=h7b6447c_5
@@ -140,6 +145,9 @@ dependencies:
   - more-itertools=6.0.0=py37_0
   - mpc=1.1.0=h10f8cd9_1
   - mpfr=4.0.1=hdf1c602_3
+  - mpi=1.0=mpich
+  - mpi4py=3.0.3=py37hcf07815_0
+  - mpich=3.3.2=hc856adb_0
   - mpmath=1.1.0=py37_0
   - msgpack-python=0.6.1=py37hfd86e86_1
   - multipledispatch=0.6.0=py37_0
@@ -158,7 +166,7 @@ dependencies:
   - ocl-icd=2.2.12=h14c3975_1003
   - olefile=0.46=py37_0
   - openpyxl=2.6.1=py37_1
-  - openssl=1.1.1c=h7b6447c_1
+  - openssl=1.1.1d=h7b6447c_3
   - packaging=19.0=py37_0
   - pandas=0.24.2=py37he6710b0_0
   - pandoc=2.2.3.2=0
@@ -172,6 +180,7 @@ dependencies:
   - patsy=0.5.1=py37_0
   - pcre=8.43=he6710b0_0
   - pep8=1.7.1=py37_0
+  - perl=5.26.2=h14c3975_0
   - pexpect=4.6.0=py37_0
   - photutils=0.6=py37h14c3975_1000
   - pickleshare=0.7.5=py37_0
@@ -225,6 +234,7 @@ dependencies:
   - requests=2.21.0=py37_0
   - rope=0.12.0=py37_0
   - ruamel_yaml=0.15.46=py37h14c3975_0
+  - schwimmbad=0.3.0=py37_2
   - scikit-image=0.14.2=py37he6710b0_0
   - scikit-learn=0.20.3=py37hd81dba3_0
   - scipy=1.2.1=py37h7c811a0_0
@@ -280,6 +290,8 @@ dependencies:
   - zstd=1.3.7=h0b5b093_0
   - pip:
     - exodata==2.1.7
+    - pytransit==2.0.0b0
     - quantities==0.12.3
+    - semantic-version==2.8.4
 prefix: /home/rchallen/anaconda3/envs/exosim
 
