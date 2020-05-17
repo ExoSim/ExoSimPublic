@@ -110,11 +110,20 @@ def run(opt, star, planet, zodi):
       if hasattr(ch, "dispersion"):
         dtmp=np.loadtxt(ch.dispersion.path.replace(
           '__path__', opt.__path__), delimiter=',')
-        ld = scipy.interpolate.interp1d(dtmp[...,2]*pq.um + ch.dispersion().rescale(pq.um), 
-                                        dtmp[...,0],
-                                        bounds_error=False,
-                                        kind='slinear',
-                                        fill_value=0.0)
+        wav   = dtmp[...,0]
+        pathx = dtmp[...,2]*pq.um + ch.dispersion()[0].rescale(pq.um)
+        pathy = dtmp[...,3]*pq.um + ch.dispersion()[1].rescale(pq.um)
+        pathint = scipy.interpolate.interp1d(pathx, pathy,
+                                             bounds_error=False,
+                                             fill_value=np.nan,
+                                             kind='linear')
+        ld = scipy.interpolate.interp1d(pathx, wav, bounds_error=False,
+                                        fill_value=0, kind='linear')
+
+
+
+
+
       elif hasattr(ch, "ld"):
         # wl = ld[0] + ld[1](x - ld[2]) = ld[1]*x + ld[0]-ldp[1]*ld[2]
         ld = np.poly1d( (ch.ld()[1], ch.ld()[0]-ch.ld()[1]*ch.ld()[2]) )
@@ -122,9 +131,21 @@ def run(opt, star, planet, zodi):
         exolib.exosim_error("Dispersion law not defined.")
       
       #4a# Estimate pixel and wavelength coordinates
-      x_pix_osr = np.arange(fp.shape[1]) * fp_delta  
-      x_wav_osr = ld(x_pix_osr.rescale(pq.um))*pq.um # walength on each x pixel
+      x_pix_osr = np.arange(fp.shape[1]) * fp_delta
+
+      if hasattr(ch, "dispersion"):
+        y_pix_osr = pathint(x_pix_osr.rescale(pq.um))*pq.um
+
+      elif hasattr(ch, "ld"):
+        # middle of focal plane
+        y_pix_osr = (np.zeros_like(x_pix_osr.magnitude) + fp.shape[0]//2) * fp_delta
+
+      x_wav_osr = ld(x_pix_osr.rescale(pq.um))*pq.um
+
+
       channel[ch.name].wl_solution = x_wav_osr
+      channel[ch.name].y_trace     = y_pix_osr
+
 
     
     elif ch.type == 'photometer':
@@ -141,14 +162,17 @@ def run(opt, star, planet, zodi):
     else:
       exolib.exosim_error("Channel should be either photometer or spectrometer.")
       
-    d_x_wav_osr = np.zeros_like (x_wav_osr)
+    d_x_wav_osr = np.zeros_like(x_wav_osr)
     idx = np.where(x_wav_osr > 0.0)
     d_x_wav_osr[idx] = np.gradient(x_wav_osr[idx])
     if np.any(d_x_wav_osr < 0): d_x_wav_osr *= -1.0
     
     #5# Generate PSFs, one in each detector pixel along spectral axis
-    psf = exolib.Psf(x_wav_osr, ch.wfno(), \
-                    fp_delta, shape='airy')
+    psf = exolib.Psf(x_wav_osr, (y_pix_osr.rescale(pq.um)/ch.detector_pixel.pixel_size().rescale(pq.um) * ch.osf().item())\
+                     , ch.wfno(), fp_delta, shape='airy')
+
+    # where psf is nans, replace with zeros
+    psf[np.isnan(psf)] = 0.0
 
     #6# Save results in Channel class
     channel[ch.name].fp_delta    = fp_delta
@@ -178,16 +202,23 @@ def run(opt, star, planet, zodi):
       exolib.exosim_error("Channel should be either photometer or spectrometer.")
       
     j1 = j0 + psf.shape[1]
-    idx = np.where((j0>=0) & (j1 < fp.shape[1]))[0]
-    i0 = fp.shape[0]//2 - psf.shape[0]//2 + channel[ch.name].offs 
-    i1 = i0 + psf.shape[0]
-    for k in idx: channel[ch.name].fp[i0:i1, j0[k]:j1[k]] += psf[...,k] * \
-        channel[ch.name].star.sed[k]
-   
+
+    idx = np.where((j0>=0) & (j1 < fp.shape[1]) & (np.isfinite(y_pix_osr)))[0]
+
+    for k in idx:
+      i0 = np.int((y_pix_osr[k].rescale(pq.um)/ch.detector_pixel.pixel_size().rescale(pq.um)\
+                 * ch.osf())//1 - psf.shape[0]//2 + channel[ch.name].offs)
+      i1 = np.int(i0 + psf.shape[0])
+      channel[ch.name].fp[i0:i1, j0[k]:j1[k]] += psf[...,k] * \
+                                   channel[ch.name].star.sed[k]
+
     #9# Now deal with the planet
     planet_response = np.zeros(fp.shape[1])
     i0p = np.unravel_index(np.argmax(channel[ch.name].psf.sum(axis=2)), channel[ch.name].psf[...,0].shape)[0]
-    for k in idx: planet_response[j0[k]:j1[k]] += psf[i0p,:,k] * channel[ch.name].planet.sed[k] 
+    for k in idx:
+      planet_response[j0[k]:j1[k]] += psf[i0p,:,k] * channel[ch.name].planet.sed[k]
+
+
 
     #9# Allocate pixel response function
     kernel, kernel_delta = exolib.PixelResponseFunction(
@@ -202,8 +233,17 @@ def run(opt, star, planet, zodi):
         kernel, kernel_delta)
   
     ## TODO CHANGE THIS: need to convolve planet with pixel response function
-    channel[ch.name].planet = Sed(channel[ch.name].wl_solution, planet_response/(1e-30+fp[(i0+i1)//2, ...]))
-    
+    i = 0
+    response_temp = np.zeros(fp.shape[1])
+    for k in idx:
+      i0 = np.int((y_pix_osr[k].rescale(pq.um)/ch.detector_pixel.pixel_size().rescale(pq.um) \
+                 * ch.osf().item())//1 - psf.shape[0]//2 + channel[ch.name].offs)
+      i1 = np.int(i0 + psf.shape[0])
+      response_temp[k] = planet_response[k]/(1e-30+fp[(i0+i1)//2,k])
+      i += 1
+
+    channel[ch.name].planet = Sed(channel[ch.name].wl_solution, response_temp)
+   
     ## Fix units
     channel[ch.name].fp = channel[ch.name].fp*channel[ch.name].star.sed.units
     channel[ch.name].planet.sed = channel[ch.name].planet.sed*pq.dimensionless
