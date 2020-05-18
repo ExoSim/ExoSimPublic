@@ -1,0 +1,6 @@
+#Wavelength(um),Beta,X Position (micron),Y Position (micron)
+1.00,0,-1000,-60
+1.25,0, -500,-30
+1.50,0,    0,  0
+1.74,0,  500, 30
+2.00,0, 1000, 60
