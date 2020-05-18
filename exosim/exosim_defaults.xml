@@ -54,6 +54,7 @@
   <optical_surface type="dichroic" transmission="__path__/data/instrument/d0_re_v0.csv"  val="70" units="K" comment="D0"/>
   <optical_surface type="grating" transmission="__path__/data/instrument/grating_swir_v0.csv"   val="70" units="K" comment=""/>  
   <slit_width val="10" units="" comment="Size of slit image in units of detector pixels"/>
+  <dispersion path="__path__/data/instrument/dispersion-example.csv" val="3840, 480" units="micron" comment="Reference pixel given as (x,y)"/>
   <ld val="1.95, 0.0002090249, 10" units=""   comment="Wavelength solution (q, m, x_ref): wl = q + m(x - x_ref) where x is th pixel coordinate in units of micron"/>  
   <array_geometry val="64, 512" units = "" comment="pixel count"/>
   <wfno val="18.5" units="" comment="The working f/#" />
