@@ -124,6 +124,7 @@ def run(opt, star, planet, zodi):
 
 
 
+
       elif hasattr(ch, "ld"):
         # wl = ld[0] + ld[1](x - ld[2]) = ld[1]*x + ld[0]-ldp[1]*ld[2]
         ld = np.poly1d( (ch.ld()[1], ch.ld()[0]-ch.ld()[1]*ch.ld()[2]) )
@@ -174,6 +175,7 @@ def run(opt, star, planet, zodi):
     # where psf is nans, replace with zeros
     psf[np.isnan(psf)] = 0.0
 
+
     #6# Save results in Channel class
     channel[ch.name].fp_delta    = fp_delta
     channel[ch.name].psf         = psf
@@ -217,7 +219,6 @@ def run(opt, star, planet, zodi):
     i0p = np.unravel_index(np.argmax(channel[ch.name].psf.sum(axis=2)), channel[ch.name].psf[...,0].shape)[0]
     for k in idx:
       planet_response[j0[k]:j1[k]] += psf[i0p,:,k] * channel[ch.name].planet.sed[k]
-
 
 
     #9# Allocate pixel response function
