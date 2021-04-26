@@ -272,6 +272,7 @@ def Psf(wl, fnum, delta, nzero = 4, shape='airy'):
   
   if shape=='airy':
     arg = 1.0e-20+np.pi*np.multiply.outer(np.sqrt(yy**2 + xx**2), d)
+    arg = arg.magnitude
     img   = (scipy.special.j1(arg)/arg)**2
   elif shape=='gauss':
     arg = np.multiply.outer(yy**2 + xx**2, d)
