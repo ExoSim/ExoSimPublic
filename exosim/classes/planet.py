@@ -217,7 +217,7 @@ class Planet(object):
     
     u =  self.ldCoeffs.getCoeffs(self.planet.star.T, wavelength, forceZero=setLdCoeffsToZero)
     self.u = u ## required for outputing into fits file at the end
-    m = QuadraticModel(is_secondary=isEclipse, klims=(0,1))
+    m = QuadraticModel(interpolate=False)
     m.set_data(timegrid.rescale(aq.day).magnitude)
     
     # m = pytransit.MandelAgol(eclipse=isEclipse )
