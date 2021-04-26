@@ -31,6 +31,8 @@ There is currently no setup.py file for this version so please install the follo
     pip install tqdm==4.48.2
     pip install lxml==4.5.2
     pip install photutils==1.0.1
+    pip install exodata
+    pip install quantities
     
 ### GitHub
 
