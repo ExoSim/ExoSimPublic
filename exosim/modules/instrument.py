@@ -123,7 +123,7 @@ def run(opt, star, planet, zodi):
       
       #4a# Estimate pixel and wavelength coordinates
       x_pix_osr = np.arange(fp.shape[1]) * fp_delta  
-      x_wav_osr = ld(x_pix_osr.rescale(pq.um))*pq.um # walength on each x pixel
+      x_wav_osr = ld(x_pix_osr.rescale(pq.um).magnitude)*pq.um # walength on each x pixel
       channel[ch.name].wl_solution = x_wav_osr
 
     
