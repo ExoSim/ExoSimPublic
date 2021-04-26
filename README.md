@@ -25,6 +25,7 @@ There is currently no setup.py file for this version so please install the follo
     pip install pytransit==2.1.1
     pip install scipy==1.5.2
     pip install astropy==4.0.1
+    pip install quantities==0.12.4
     pip install emcee==3.0.2
     pip install seaborn==0.10.1
     pip install uncertainties==3.1.4
@@ -32,7 +33,7 @@ There is currently no setup.py file for this version so please install the follo
     pip install lxml==4.5.2
     pip install photutils==1.0.1
     pip install exodata
-    pip install quantities
+    
     
 ### GitHub
 
