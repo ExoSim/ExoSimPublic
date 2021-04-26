@@ -8,7 +8,7 @@
   </common>
   
   <aocs>
-    <PointingModel val="__path__/data/twinkle/pointing_model_psd.csv" comment="Jitter PSD in units of deg**2/Hz" />
+    <PointingModel val="__path__/data/instrument/pointing_model_psd.csv" comment="Jitter PSD in units of deg**2/Hz" />
     <pointing_rms val="4.0e-5" units="deg" comment="RMS of desired jitter. Omit this keyword to use the normalisation of the PSD" />
     <pointing_scan_throw val="-8" units="arcsec" comment="Positive value enables scan-mode simulation. The value defines the throw of the scan, in arcsec. The period of the scan is defined by the exposure time." />
   </aocs>    
